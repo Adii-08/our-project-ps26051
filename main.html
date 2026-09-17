@@ -1,0 +1,1539 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ThermaSetu — Extreme Climate Tactical Shelter Optimizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   1. DARK THEME (HIGH-CONTRAST PALETTE)
+   ========================================================================== */
+:root {
+  --bg: #040813;
+  --bg-radial-1: #0a2544;
+  --bg-radial-2: #092c35;
+  --header-bg: rgba(4, 8, 19, 0.96);
+  --panel: #0a1324;
+  --panel-gradient-start: rgba(14, 26, 48, 0.97);
+  --panel-gradient-end: rgba(8, 15, 29, 0.99);
+  --panel-inner: rgba(5, 11, 22, 0.85);
+  --panel-card: #081120;
+  --line: #1c3254;
+  
+  --input-bg: #060d1a;
+  --input-border: #223c63;
+  --input-text: #f1f6fd;
+  
+  --text-main: #ffffff;
+  --text-heading: #ffffff;
+  --text-muted: #8ca7c7;
+  --text-label: #c2d8f2;
+  
+  /* Prominent Red for Centered Dashboard Heading & Convergence */
+  --title-red: #ff2a5f;
+  --title-red-glow: 0 0 24px rgba(255, 42, 95, 0.45);
+  --menu-hover: rgba(255, 42, 95, 0.16);
+
+  /* Specific Action Button Colors */
+  --btn-convergence-bg: #e11d48;
+  --btn-convergence-hover: #f43f5e;
+  --btn-convergence-text: #ffffff;
+  --btn-export-bg: #eab308;
+  --btn-export-hover: #facc15;
+  --btn-export-text: #050a15;
+  
+  --accent: #00f5ff;
+  --accent-dim: rgba(0, 245, 255, 0.16);
+  --accent-glow: 0 0 16px rgba(0, 245, 255, 0.35);
+  --good: #00ff88;
+  --good-dim: rgba(0, 255, 136, 0.16);
+  --good-glow: 0 0 16px rgba(0, 255, 136, 0.35);
+  --warn: #ffc400;
+  --warn-dim: rgba(255, 196, 0, 0.16);
+  --danger: #ff2a5f;
+  --danger-dim: rgba(255, 42, 95, 0.18);
+  
+  --shadow: 0 20px 60px rgba(0, 0, 0, 0.65);
+  --dropdown-bg: #0b172e;
+  --pre-bg: #030710;
+  --chart-bg: #060e1c;
+  --chart-grid: #152740;
+  --chart-text: #7b9ec4;
+  
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+/* ==========================================================================
+   2. LIGHT THEME (HIGH CONTRAST & ZERO BLANK TEXT GUARANTEE)
+   ========================================================================== */
+body.light-theme {
+  --bg: #e2e8f0;
+  --bg-radial-1: #cbd5e1;
+  --bg-radial-2: #bae6fd;
+  --header-bg: rgba(255, 255, 255, 0.98);
+  --panel: #ffffff;
+  --panel-gradient-start: #ffffff;
+  --panel-gradient-end: #f8fafc;
+  --panel-inner: #f1f5f9;
+  --panel-card: #ffffff;
+  --line: #94a3b8;
+  
+  --input-bg: #ffffff;
+  --input-border: #64748b;
+  --input-text: #020617;
+  
+  --text-main: #020617;
+  --text-heading: #000000;
+  --text-muted: #334155;
+  --text-label: #0f172a;
+  
+  /* Bold Projector-Grade Red for Light Mode */
+  --title-red: #dc2626;
+  --title-red-glow: none;
+  --menu-hover: rgba(220, 38, 38, 0.12);
+
+  /* Specific Action Button Colors */
+  --btn-convergence-bg: #dc2626;
+  --btn-convergence-hover: #ef4444;
+  --btn-convergence-text: #ffffff;
+  --btn-export-bg: #ca8a04;
+  --btn-export-hover: #eab308;
+  --btn-export-text: #ffffff;
+  
+  --accent: #0055b3;
+  --accent-dim: rgba(0, 85, 179, 0.14);
+  --accent-glow: none;
+  --good: #0d7330;
+  --good-dim: rgba(13, 115, 48, 0.14);
+  --good-glow: none;
+  --warn: #a14300;
+  --warn-dim: rgba(161, 67, 0, 0.14);
+  --danger: #b91c1c;
+  --danger-dim: rgba(185, 28, 28, 0.14);
+  
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  --dropdown-bg: #ffffff;
+  --pre-bg: #f8fafc;
+  --chart-bg: #ffffff;
+  --chart-grid: #cbd5e1;
+  --chart-text: #0f172a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: radial-gradient(circle at 6% 0, var(--bg-radial-1) 0, transparent 45%), radial-gradient(circle at 94% 8%, var(--bg-radial-2) 0, transparent 40%), var(--bg);
+  color: var(--text-main);
+  font: 13.5px/1.45 var(--font-sans);
+  min-height: 100vh;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Header */
+header {
+  padding: 16px 3vw;
+  border-bottom: 2px solid var(--line);
+  position: sticky;
+  top: 0;
+  background: var(--header-bg);
+  backdrop-filter: blur(16px);
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+.brand { 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  text-align: center; 
+}
+.brand h1 { 
+  font-size: 26px; 
+  font-weight: 900; 
+  letter-spacing: 0.03em; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  gap: 10px; 
+  color: var(--text-heading);
+}
+
+.theme-toggle {
+  position: absolute;
+  right: 3vw;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--panel-card);
+  border: 2px solid var(--line);
+  color: var(--text-main);
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 800;
+  transition: all 0.2s ease;
+}
+.theme-toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Master Grid */
+main { max-width: 1960px; margin: auto; padding: 20px 2.5vw 40px; }
+.grid { display: grid; grid-template-columns: 340px 1fr; gap: 24px; }
+
+.panel {
+  background: linear-gradient(180deg, var(--panel-gradient-start), var(--panel-gradient-end));
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 18px 20px;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.panel h2 { 
+  font-size: 14px; 
+  font-weight: 800; 
+  text-transform: uppercase; 
+  letter-spacing: 0.06em; 
+  color: var(--text-heading); 
+  margin-bottom: 12px; 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+}
+.panel h3 { 
+  font-size: 12px; 
+  font-weight: 800; 
+  color: var(--text-muted); 
+  margin-bottom: 8px; 
+  text-transform: uppercase; 
+  letter-spacing: 0.04em; 
+}
+
+.controls { display: grid; gap: 12px; max-height: calc(100vh - 95px); overflow-y: auto; padding-right: 5px; }
+.section { padding: 13px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel-inner); }
+
+/* Form Layout */
+.row-1 { display: block; margin-bottom: 8px; }
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+
+.ctrl { display: flex; flex-direction: column; gap: 4px; }
+.ctrl-lbl { font-size: 11px; font-weight: 800; color: var(--text-label); font-family: var(--font-sans); text-transform: uppercase; letter-spacing: 0.03em; }
+
+input, select, button, textarea { font: inherit; outline: none; }
+input, select, textarea {
+  width: 100%;
+  background-color: var(--input-bg) !important;
+  border: 1.5px solid var(--input-border) !important;
+  color: var(--input-text) !important;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+}
+select option { 
+  background-color: var(--input-bg) !important; 
+  color: var(--input-text) !important; 
+  font-weight: 700;
+}
+input:focus, select:focus { border-color: var(--accent) !important; }
+input[type=file] { padding: 5px; font-family: var(--font-sans); font-size: 11px; }
+
+button {
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  color: #030d17;
+  background: var(--accent);
+  font-weight: 800;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+button:hover { filter: brightness(1.1); transform: translateY(-1px); }
+button.secondary { background: var(--panel-card); color: var(--text-main); border: 1.5px solid var(--line); }
+button.good { background: var(--good); color: #050a15 !important; }
+button.warn { background: var(--warn); }
+button.danger { background: var(--danger); }
+
+/* Specific Red and Yellow Action Button Styling */
+.btn-convergence {
+  background: var(--btn-convergence-bg) !important;
+  color: var(--btn-convergence-text) !important;
+  font-weight: 800 !important;
+}
+.btn-convergence:hover {
+  background: var(--btn-convergence-hover) !important;
+}
+.btn-export {
+  background: var(--btn-export-bg) !important;
+  color: var(--btn-export-text) !important;
+  font-weight: 900 !important;
+}
+.btn-export:hover {
+  background: var(--btn-export-hover) !important;
+}
+
+.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.wide { grid-column: 1/-1; }
+
+/* ==========================================================================
+   3. CENTERED BIG DASHBOARD HEADER & 3-DOT OVERFLOW MENU
+   ========================================================================== */
+.view-header-bar {
+  display: flex;
+  justify-content: center; /* Perfectly Centered Dashboard Section Title */
+  align-items: center;
+  margin-bottom: 22px;
+  padding: 12px 18px;
+  border-bottom: 2px solid var(--line);
+  position: relative;
+}
+
+.big-view-title {
+  font-size: 38px;
+  font-weight: 900;
+  font-family: var(--font-mono);
+  color: var(--title-red) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  text-align: center;
+  text-shadow: var(--title-red-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+/* 3-Dot (⋮) Overflow Menu */
+.dots-menu-wrap {
+  position: absolute;
+  right: 10px;
+}
+.dots-btn {
+  background: var(--panel-card);
+  border: 2px solid var(--line);
+  color: var(--title-red);
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  font-size: 24px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow);
+}
+.dots-btn:hover {
+  border-color: var(--title-red);
+  background: var(--menu-hover);
+  transform: scale(1.05);
+}
+
+.dots-dropdown {
+  position: absolute;
+  top: 52px;
+  right: 0;
+  width: 290px;
+  background: var(--dropdown-bg);
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 100;
+  backdrop-filter: blur(20px);
+}
+.dots-dropdown.hidden { display: none !important; }
+
+.menu-opt {
+  background: transparent;
+  border: 1.5px solid transparent;
+  color: var(--text-main);
+  text-align: left;
+  padding: 11px 15px;
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: all 0.15s ease;
+}
+body.light-theme .menu-opt { color: #020617 !important; }
+.menu-opt:hover {
+  background: var(--menu-hover);
+  color: var(--title-red) !important;
+  border-color: var(--title-red);
+  transform: translateX(3px);
+}
+.menu-opt.active {
+  background: var(--menu-hover);
+  color: var(--title-red) !important;
+  border-color: var(--title-red);
+  box-shadow: 0 0 12px rgba(255, 42, 95, 0.25);
+}
+
+/* --- BIG COMMAND DASHBOARD CONTAINER --- */
+.dashboard-container { display: flex; flex-direction: column; gap: 20px; width: 100%; }
+
+/* Row 1: High-Visibility Hero KPI Cards */
+.cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+.metric {
+  padding: 18px 22px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel-card);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: var(--shadow);
+  border-top: 4px solid var(--line);
+}
+.metric.accent { border-top-color: var(--accent); }
+.metric.green { border-top-color: var(--good); }
+.metric.amber { border-top-color: var(--warn); }
+
+.metric .v { 
+  font-family: var(--font-mono); 
+  font-size: 34px; 
+  font-weight: 900; 
+  margin: 6px 0 2px; 
+  color: var(--text-heading);
+  letter-spacing: -0.03em;
+}
+.metric.green .v { color: var(--good); text-shadow: var(--good-glow); }
+.metric.accent .v { color: var(--accent); text-shadow: var(--accent-glow); }
+.metric.amber .v { color: var(--warn); }
+.metric small { color: var(--text-muted); font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* Row 2: Large Visual Analytical Charts */
+.two-charts { display: grid; grid-template-columns: 1.35fr 1fr; gap: 20px; }
+canvas.large-chart { width: 100%; height: 390px; border: 1.5px solid var(--line); border-radius: 10px; display: block; }
+.chartwrap { padding: 20px; }
+.legend { display: flex; gap: 18px; flex-wrap: wrap; color: var(--text-muted); font-size: 12.5px; margin: 6px 0 12px; font-family: var(--font-mono); font-weight: 700; }
+.dot { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 6px; vertical-align: middle; }
+.dot.i { background: var(--accent); }
+.dot.o { background: var(--warn); }
+.dot.h { background: var(--good); }
+.dot.t { background: rgba(0, 255, 136, 0.35); border: 1px solid var(--good); }
+body.light-theme .dot.t { background: rgba(13, 115, 48, 0.25); border-color: var(--good); }
+
+/* Row 3: Spatial & Wall Visualizers */
+.two-visualizers { display: grid; grid-template-columns: 1fr 1.35fr; gap: 20px; }
+canvas.vis-chart { width: 100%; height: 260px; border: 1.5px solid var(--line); border-radius: 10px; display: block; }
+
+/* Row 4: Triple Diagnostics Grid */
+.three-cards { display: grid; grid-template-columns: 1fr 1fr 1.25fr; gap: 20px; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+th, td { padding: 9px 10px; border-bottom: 1px solid var(--line); text-align: left; }
+th { color: var(--text-muted); font-family: var(--font-mono); font-size: 11.5px; text-transform: uppercase; font-weight: 800; }
+td { color: var(--text-main); font-weight: 700; }
+td.val { font-family: var(--font-mono); font-weight: 800; color: var(--accent); text-align: right; font-size: 13px; }
+.rank { font-weight: 900; color: var(--accent); font-family: var(--font-mono); font-size: 13px; }
+
+.wallrow { display: grid; grid-template-columns: 1.3fr .6fr .6fr .6fr 28px; gap: 6px; margin: 6px 0; align-items: center; }
+.wallrow button { padding: 6px; background: var(--input-border); color: var(--text-main); border-radius: 4px; font-weight: 800; }
+
+.small { font-size: 11.5px; color: var(--text-muted); margin-top: 4px; line-height: 1.45; font-weight: 600; }
+.note { border-left: 4px solid var(--accent); padding: 12px 16px; background: var(--panel-inner); border-radius: 8px; color: var(--text-main); font-size: 12.5px; line-height: 1.5; font-weight: 600; }
+.warning { border-left-color: var(--warn); }
+.success { border-left-color: var(--good); }
+.danger-note { border-left-color: var(--danger); }
+
+.status { padding: 9px 13px; border-radius: 8px; background: var(--panel-inner); color: var(--text-main); font-family: var(--font-mono); font-size: 11.5px; border: 1.5px solid var(--line); font-weight: 700; }
+.status.good { color: var(--good); border-color: rgba(0, 255, 136, 0.4); background: var(--good-dim); }
+.status.warn { color: var(--warn); border-color: rgba(255, 196, 0, 0.4); background: var(--warn-dim); }
+.status.danger { color: var(--danger); border-color: rgba(255, 42, 95, 0.4); background: var(--danger-dim); }
+
+pre { white-space: pre-wrap; background: var(--pre-bg); border: 1.5px solid var(--line); padding: 14px; border-radius: 10px; font-family: var(--font-mono); font-size: 12px; max-height: 440px; overflow: auto; color: var(--text-main); font-weight: 600; }
+.hidden { display: none !important; }
+
+/* Centered Clean Footer */
+.footer { 
+  margin-top: 35px; 
+  color: var(--text-muted); 
+  font-size: 15px; 
+  font-weight: 900; 
+  text-align: center; 
+  font-family: var(--font-mono); 
+  letter-spacing: 0.08em; 
+}
+
+@media (max-width: 1350px) {
+  .grid { grid-template-columns: 1fr; }
+  .controls { max-height: none; }
+  .cards { grid-template-columns: repeat(3, 1fr); }
+  .two-charts, .three-cards, .two-visualizers { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .cards { grid-template-columns: 1fr 1fr; }
+  .theme-toggle { position: static; margin-top: 10px; }
+  header { flex-direction: column; }
+  .big-view-title { font-size: 26px; letter-spacing: 0.08em; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <h1>ThermaSetu <span style="font-size:11px; padding:3px 8px; border-radius:4px; background:var(--accent-dim); color:var(--accent); font-family:var(--font-mono);">DRDO-SIH TACTICAL CORE</span></h1>
+  </div>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+    <span id="themeIcon">☀️</span> <span id="themeLabel">Light Mode</span>
+  </button>
+</header>
+
+<main>
+<div class="grid">
+
+<!-- Left Control Rack -->
+<aside class="panel">
+<div class="controls">
+
+  <!-- 1. Scenario & Microclimate -->
+  <div class="section">
+    <h2>1 · Scenario & Microclimate</h2>
+    <div class="row-1">
+      <div class="ctrl">
+        <span class="ctrl-lbl">Deployment Preset</span>
+        <select id="preset">
+          <option value="Ladakh">Ladakh Desert (-12°C, 3500m)</option>
+          <option value="Siachen">Siachen Base (-26°C, 5400m)</option>
+          <option value="Delhi">Delhi Summer (+38°C, 215m)</option>
+          <option value="Rajasthan">Thar Desert (+44°C, 180m)</option>
+          <option value="Custom">Custom Deployment</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="row-2">
+      <div class="ctrl"><span class="ctrl-lbl">Altitude (m)</span><input id="alt" type="number" step="50" value="3500"></div>
+      <div class="ctrl"><span class="ctrl-lbl">Latitude (°)</span><input id="lat" type="number" step=".1" value="34.15"></div>
+    </div>
+
+    <div class="row-2">
+      <div class="ctrl"><span class="ctrl-lbl">Day of Year</span><input id="doy" type="number" min="1" max="365" value="15"></div>
+      <div class="ctrl"><span class="ctrl-lbl">Wind Speed (m/s)</span><input id="wind" type="number" step=".1" value="8.0"></div>
+    </div>
+
+    <div class="row-2">
+      <div class="ctrl"><span class="ctrl-lbl">Outdoor Mean (°C)</span><input id="tmean" type="number" step=".1" value="-12"></div>
+      <div class="ctrl"><span class="ctrl-lbl">Outdoor Amp (±°C)</span><input id="tamp" type="number" step=".1" value="8.5"></div>
+    </div>
+
+    <div class="row-2">
+      <div class="ctrl"><span class="ctrl-lbl">Peak Solar (W/m²)</span><input id="solar" type="number" step="10" value="850"></div>
+      <div class="ctrl"><span class="ctrl-lbl">Rel. Humidity (%)</span><input id="rh" type="number" min="0" max="100" value="35"></div>
+    </div>
+
+    <div class="row-1" style="margin-top:4px;">
+      <span class="ctrl-lbl">Optional Climate CSV (hour,temp,solar,wind,rh)</span>
+      <input id="climateFile" type="file" accept=".csv,text/csv" style="margin-top:3px;">
+    </div>
+  </div>
+
+  <!-- 2. Shelter Geometry -->
+  <div class="section">
+    <h2>2 · Shelter Geometry</h2>
+    <div class="row-3">
+      <div class="ctrl"><span class="ctrl-lbl">Length (m)</span><input id="L" type="number" step=".1" value="6.0"></div>
+      <div class="ctrl"><span class="ctrl-lbl">Width (m)</span><input id="W" type="number" step=".1" value="4.0"></div>
+      <div class="ctrl"><span class="ctrl-lbl">Height (m)</span><input id="H" type="number" step=".1" value="2.6"></div>
+    </div>
+
+    <div class="row-3">
+      <div class="ctrl"><span class="ctrl-lbl">Window (m²)</span><input id="win" type="number" step=".1" value="2.8"></div>
+      <div class="ctrl"><span class="ctrl-lbl">Door (m²)</span><input id="door" type="number" step=".1" value="1.8"></div>
+      <div class="ctrl"><span class="ctrl-lbl">Glaze U (W/m²K)</span><input id="winU" type="number" step=".01" value="2.4"></div>
+    </div>
+
+    <div class="row-3">
+      <div class="ctrl"><span class="ctrl-lbl">Azimuth (°)</span><input id="ori" type="number" min="0" max="359" value="180"></div>
+      <div class="ctrl"><span class="ctrl-lbl">Roof Tilt (°)</span><input id="tilt" type="number" min="0" max="60" value="15"></div>
+      <div class="ctrl"><span class="ctrl-lbl">Soldiers</span><input id="people" type="number" min="0" max="20" value="4"></div>
+    </div>
+  </div>
+
+  <!-- 3. Envelope Construction & PCM -->
+  <div class="section">
+    <h2>3 · Construction Assemblies</h2>
+    <h3>Wall Layers · Substrate / mm / k (W/m·K) / Density (kg/m³)</h3>
+    <div id="wallLayers"></div>
+    <button class="secondary wide" onclick="addLayer('wall')">+ Add Wall Layer</button>
+
+    <h3 style="margin-top:12px">Roof Layers</h3>
+    <div id="roofLayers"></div>
+    <button class="secondary wide" onclick="addLayer('roof')">+ Add Roof Layer</button>
+
+    <h3 style="margin-top:12px">Floor Layers</h3>
+    <div id="floorLayers"></div>
+    <button class="secondary wide" onclick="addLayer('floor')">+ Add Floor Layer</button>
+  </div>
+
+  <!-- 4. Ventilation & Psychrometric Comfort -->
+  <div class="section">
+    <h2>4 · Infiltration & Comfort</h2>
+    <div class="row-2">
+      <div class="ctrl"><span class="ctrl-lbl">Infiltration (ACH)</span><input id="ach" type="number" step=".05" value=".5"></div>
+      <div class="ctrl"><span class="ctrl-lbl">Indoor Start (°C)</span><input id="startT" type="number" step=".1" value="10"></div>
+    </div>
+    <div class="row-2">
+      <div class="ctrl"><span class="ctrl-lbl">Target Comfort (°C)</span><input id="target" type="number" step=".1" value="21"></div>
+      <div class="ctrl"><span class="ctrl-lbl">Tolerance Band (±°C)</span><input id="band" type="number" step=".1" value="3"></div>
+    </div>
+    <div class="row-2">
+      <div class="ctrl"><span class="ctrl-lbl">Clothing (clo)</span><input id="clo" type="number" step=".1" value="1.5"></div>
+      <div class="ctrl"><span class="ctrl-lbl">Activity (met)</span><input id="met" type="number" step=".1" value="1.2"></div>
+    </div>
+    <div class="row-2">
+      <div class="ctrl"><span class="ctrl-lbl">Air Speed (m/s)</span><input id="airspeed" type="number" step=".01" value=".10"></div>
+      <div class="ctrl"><span class="ctrl-lbl">Ground Temp (°C)</span><input id="groundT" type="number" step=".1" value="-4.0"></div>
+    </div>
+  </div>
+
+  <!-- 5. Auxiliary Heating/Cooling -->
+  <div class="section">
+    <h2>5 · Auxiliary HVAC</h2>
+    <div class="row-2">
+      <div class="ctrl">
+        <span class="ctrl-lbl">Operational Mode</span>
+        <select id="mode">
+          <option value="heat" selected>Heating (Bukhari)</option>
+          <option value="cool">Cooling</option>
+          <option value="none">Passive Free-Running</option>
+        </select>
+      </div>
+      <div class="ctrl"><span class="ctrl-lbl">Setpoint (°C)</span><input id="setpoint" type="number" step=".1" value="18.5"></div>
+    </div>
+    <div class="row-2">
+      <div class="ctrl"><span class="ctrl-lbl">Heater Limit (kW)</span><input id="equip" type="number" step=".1" value="4.0"></div>
+      <div class="ctrl"><span class="ctrl-lbl">Efficiency (COP/η)</span><input id="eff" type="number" step=".05" value=".75"></div>
+    </div>
+  </div>
+
+  <!-- 6. Simulation Actions with Color-Coded Convergence & Export Buttons -->
+  <div class="section">
+    <h2>6 · Execution Engine</h2>
+    <div class="row-1">
+      <div class="ctrl"><span class="ctrl-lbl">Numerical Timestep (min)</span><input id="dt" type="number" min=".5" max="60" step=".5" value="5"></div>
+    </div>
+    <div class="actions">
+      <button onclick="runSimulation()">Run Physics</button>
+      <button class="good" onclick="optimize()">Optimize</button>
+      <button class="btn-convergence" onclick="convergence()">Convergence</button>
+      <button class="btn-export" onclick="exportReport()">Export Report</button>
+    </div>
+    <div id="status" class="status" style="margin-top:9px">Engine initialized. Ready.</div>
+  </div>
+
+</div>
+</aside>
+
+<!-- Right Viewport Section (Maximized Widescreen Command Dashboard) -->
+<section>
+
+  <!-- Big Centered Dashboard Header Bar & 3-Dot (⋮) Overflow Menu -->
+  <div class="view-header-bar">
+    <div class="big-view-title" id="viewHeaderTitle">
+      DASHBOARD
+    </div>
+    
+    <!-- 3-Dot (⋮) Menu Button Container -->
+    <div class="dots-menu-wrap">
+      <button class="dots-btn" id="dotsBtn" onclick="toggleMenu()" title="Select View">⋮</button>
+      <div class="dots-dropdown hidden" id="dotsMenu">
+        <button class="menu-opt active" onclick="switchView('dashboard', 'DASHBOARD', this)">📊 Dashboard</button>
+        <button class="menu-opt" onclick="switchView('optimizer', 'PARETO OPTIMIZER', this)">⚡ Pareto Optimizer</button>
+        <button class="menu-opt" onclick="switchView('validation', 'FIELD VALIDATION (CSV)', this)">📈 Field Validation (CSV)</button>
+        <button class="menu-opt" onclick="switchView('engineering', 'ENGINEERING AUDIT', this)">📋 Engineering Audit</button>
+        <button class="menu-opt" onclick="switchView('demo', '90-SEC FAST DEMO', this)">⏱️ 90-Sec Fast Demo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 1: Enlarged Comprehensive Dashboard View -->
+  <div id="dashboard" class="tabpage dashboard-container">
+    
+    <!-- Top Telemetry KPI Cards -->
+    <div class="cards" id="metrics"></div>
+
+    <!-- Dual Large Analytical Charts -->
+    <div class="two-charts">
+      <div class="panel chartwrap">
+        <h2>Indoor vs Outdoor Diurnal Damping Profile</h2>
+        <div class="legend">
+          <span><i class="dot i"></i>Indoor Dynamic</span>
+          <span><i class="dot o"></i>Outdoor Ambient</span>
+          <span><i class="dot t"></i>DRDO Comfort Target (18°-24°C)</span>
+        </div>
+        <canvas id="tempChart" class="large-chart"></canvas>
+      </div>
+
+      <div class="panel chartwrap">
+        <h2>Hourly Transient Thermal Flux Balance</h2>
+        <div class="legend">
+          <span><i class="dot h"></i>Aux Heat</span>
+          <span><i class="dot o"></i>Solar Gain</span>
+          <span>Conduction / Ventilation Losses (Inverted)</span>
+        </div>
+        <canvas id="heatChart" class="large-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Dual Spatial Visualizers: 2D Plan & Fourier Wall Gradient -->
+    <div class="two-visualizers">
+      <div class="panel">
+        <h2>2D Shelter Schematic & Sun Orientation</h2>
+        <canvas id="shelterCanvas" class="vis-chart"></canvas>
+      </div>
+      <div class="panel">
+        <h2>Envelope Multi-Layer Wall Thermal Gradient</h2>
+        <canvas id="wallCanvas" class="vis-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Triple Metric Diagnostics Panel -->
+    <div class="three-cards">
+      <div class="panel"><h2>Envelope Transmittance</h2><div id="thermalTable"></div></div>
+      <div class="panel"><h2>Tactical Energy & Fuel Offset</h2><div id="energyTable"></div></div>
+      <div class="panel"><h2>Psychrometric Hazard Diagnostic</h2><div id="insight"></div></div>
+    </div>
+
+  </div>
+
+  <!-- Tab 2: Optimizer -->
+  <div id="optimizer" class="tabpage hidden">
+    <div class="panel">
+      <h2>Multi-Objective Screening Optimizer</h2>
+      <p class="small">Searches insulation substrates, PCM layer thickness, and infiltration bounds to balance thermal comfort against payload weight and fuel savings.</p>
+      <div class="three-cards" style="margin-top:12px">
+        <div class="ctrl"><span class="ctrl-lbl">Comfort Weight</span><input id="wComfort" type="number" step=".05" value=".55"></div>
+        <div class="ctrl"><span class="ctrl-lbl">Fuel Save Weight</span><input id="wEnergy" type="number" step=".05" value=".30"></div>
+        <div class="ctrl"><span class="ctrl-lbl">Mass Penalty Weight</span><input id="wCost" type="number" step=".05" value=".15"></div>
+      </div>
+      <div class="three-cards" style="margin-top:8px">
+        <div class="ctrl"><span class="ctrl-lbl">Max Wall Thickness (mm)</span><input id="maxThick" type="number" value="250"></div>
+        <div class="ctrl"><span class="ctrl-lbl">Max Budget Index</span><input id="maxCost" type="number" value="350"></div>
+        <div class="ctrl"><span class="ctrl-lbl">Max Structural Mass (kg)</span><input id="maxMass" type="number" value="8000"></div>
+      </div>
+      <div id="optResults" style="margin-top:14px"></div>
+    </div>
+  </div>
+
+  <!-- Tab 3: Validation -->
+  <div id="validation" class="tabpage hidden">
+    <div class="panel">
+      <h2>Field Sensor Validation ($R^2$, MAE, RMSE)</h2>
+      <p class="small">Upload an experimental test sensor CSV with <b>hour,measuredIndoorTemp</b>. The numerical solver quantifies divergence metrics against real border telemetry.</p>
+      <input id="measuredFile" type="file" accept=".csv,text/csv" style="margin-top:10px">
+      <div id="validationOut" style="margin-top:14px"></div>
+    </div>
+  </div>
+
+  <!-- Tab 4: Engineering Audit -->
+  <div id="engineering" class="tabpage hidden">
+    <div class="panel"><h2>DRDO Engineering Verification Audit</h2><div id="audit"></div></div>
+    <div class="panel" style="margin-top:14px">
+      <h2>Governing Chemical Engineering Equations</h2>
+      <pre>1. Dynamic Energy Conservation:
+   (C_air + m_pcm·C_app)·(dTi/dt) = Q_solar + Q_internal + Q_HVAC − Q_conduction − Q_ventilation − Q_radiation
+
+2. Apparent Heat Capacity PCM Latent Spurt:
+   C_app(T) = C_p,sensible + [ L_f / (√(2π)·σ) ] · exp( -(T - T_m)² / (2σ²) )
+
+3. High-Altitude Air Density Correction (Tropospheric Lapse):
+   ρ_air(z) = [ P_0 / (R_spec·T) ] · (1 − 0.0065·z / 288.15)^5.255
+
+4. Dynamic Wind-Coupled External Convection:
+   h_out = 5.7 + 3.8 · v_wind   [W/m²·K]
+   U_wall = 1 / [ (1/h_out) + Σ(L_j / k_j) + (1/h_in) ]
+
+5. Magnus-Tetens Psychrometric Interstitial Frost Criterion:
+   T_dp = (243.04 · α) / (17.625 − α),  where α = [ (17.625·T) / (243.04 + T) ] + ln(RH/100)
+   Condition: If inside wall surface boundary T_w,in ≤ T_dp, interstitial condensation/frost triggers.</pre>
+    </div>
+  </div>
+
+  <!-- Tab 5: 90-Sec Fast Demo -->
+  <div id="demo" class="tabpage hidden">
+    <div class="panel">
+      <h2>90-Second Rapid Mission Scenario</h2>
+      <div id="demoCards" style="margin-bottom:14px"></div>
+      <button class="good" onclick="runMissionDemo()">Execute High-Altitude Defense Scenario</button>
+    </div>
+  </div>
+
+</section>
+</div>
+
+<div class="footer">ThermaSetu</div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+
+// --- Theme Management With Instant Repaint ---
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light-theme');
+  $('themeIcon').textContent = isLight ? '🌙' : '☀️';
+  $('themeLabel').textContent = isLight ? 'Dark Mode' : 'Light Mode';
+  if (lastResult) render(lastResult);
+}
+
+// --- 3-Dot (⋮) Menu Management ---
+function toggleMenu() {
+  $('dotsMenu').classList.toggle('hidden');
+}
+
+// Close menu when clicking outside
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.dots-menu-wrap')) {
+    $('dotsMenu').classList.add('hidden');
+  }
+});
+
+function switchView(tabId, titleText, btn) {
+  // Hide all tab pages
+  document.querySelectorAll('.tabpage').forEach(x => x.classList.add('hidden'));
+  $(tabId).classList.remove('hidden');
+
+  // Update centered big heading text
+  $('viewHeaderTitle').textContent = titleText;
+
+  // Update active status in dropdown
+  document.querySelectorAll('.menu-opt').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  // Close dropdown menu
+  $('dotsMenu').classList.add('hidden');
+
+  // Re-render canvases if switching back to dashboard
+  if (tabId === 'dashboard' && lastResult) {
+    setTimeout(() => render(lastResult), 50);
+  }
+}
+
+// 1. Mission Presets with Altitudes
+const presets = {
+  Ladakh: { alt: 3500, lat: 34.15, tmean: -12, tamp: 8.5, solar: 850, wind: 8.0, rh: 35, groundT: -4.0 },
+  Siachen: { alt: 5400, lat: 35.50, tmean: -26, tamp: 9.0, solar: 920, wind: 14.0, rh: 25, groundT: -12.0 },
+  Delhi: { alt: 215, lat: 28.61, tmean: 38, tamp: 7.0, solar: 750, wind: 2.5, rh: 45, groundT: 28.0 },
+  Rajasthan: { alt: 180, lat: 27.02, tmean: 44, tamp: 11.0, solar: 1050, wind: 4.0, rh: 20, groundT: 32.0 },
+  Custom: {}
+};
+
+// 2. Comprehensive Material Database including Aerogel and PCM[cite: 1]
+const materials = {
+  Aerogel: { k: 0.015, rho: 110, cp: 1000, cost: 3.2, alpha: 0.35, eps: 0.90, isPCM: false },
+  PUF: { k: 0.022, rho: 42, cp: 1400, cost: 1.5, alpha: 0.45, eps: 0.90, isPCM: false },
+  VIP: { k: 0.007, rho: 190, cp: 800, cost: 4.0, alpha: 0.30, eps: 0.90, isPCM: false },
+  PCM_RT21: { k: 0.200, rho: 880, cp: 2000, cost: 2.8, alpha: 0.50, eps: 0.90, isPCM: true, Lf: 190000, Tm: 21.0, sigma: 0.8 },
+  Wood: { k: 0.130, rho: 550, cp: 1600, cost: 1.1, alpha: 0.55, eps: 0.90, isPCM: false },
+  Brick: { k: 0.600, rho: 1800, cp: 840, cost: 0.8, alpha: 0.65, eps: 0.90, isPCM: false },
+  Metal: { k: 45.0, rho: 7800, cp: 480, cost: 1.2, alpha: 0.70, eps: 0.80, isPCM: false },
+  Concrete: { k: 1.700, rho: 2300, cp: 880, cost: 0.9, alpha: 0.65, eps: 0.90, isPCM: false },
+  AirGap: { k: 0.180, rho: 1.2, cp: 1005, cost: 0.2, alpha: 0.10, eps: 0.90, isPCM: false }
+};
+
+let climateCSV = null, measuredCSV = null, lastResult = null;
+
+// Dynamic Assembly Rows[cite: 1]
+function layerRow(type, mat = 'PUF', mm = 50) {
+  const d = document.createElement('div');
+  d.className = 'wallrow';
+  d.dataset.type = type;
+  d.innerHTML = `
+    <select class="mat">${Object.keys(materials).map(x => `<option ${x === mat ? 'selected' : ''}>${x}</option>`).join('')}</select>
+    <input class="mm" type="number" value="${mm}" min="1" title="Thickness (mm)">
+    <input class="k" type="number" value="${materials[mat].k}" step=".001" title="Thermal conductivity k">
+    <input class="rho" type="number" value="${materials[mat].rho}" title="Density rho">
+    <button title="Delete layer">×</button>
+  `;
+  d.querySelector('.mat').onchange = e => {
+    let m = materials[e.target.value];
+    d.querySelector('.k').value = m.k;
+    d.querySelector('.rho').value = m.rho;
+  };
+  d.querySelector('button').onclick = () => d.remove();
+  return d;
+}
+
+function addLayer(type) { $(`${type}Layers`).appendChild(layerRow(type)); }
+
+function initLayers() {
+  // Default tactical multi-layer envelope[cite: 1]
+  $('wallLayers').appendChild(layerRow('wall', 'Wood', 15));
+  $('wallLayers').appendChild(layerRow('wall', 'PUF', 60));
+  $('wallLayers').appendChild(layerRow('wall', 'PCM_RT21', 15));
+  $('wallLayers').appendChild(layerRow('wall', 'Wood', 10));
+
+  $('roofLayers').appendChild(layerRow('roof', 'Aerogel', 40));
+  $('roofLayers').appendChild(layerRow('roof', 'PUF', 80));
+  $('roofLayers').appendChild(layerRow('roof', 'Metal', 2));
+
+  $('floorLayers').appendChild(layerRow('floor', 'Wood', 25));
+  $('floorLayers').appendChild(layerRow('floor', 'PUF', 60));
+  $('floorLayers').appendChild(layerRow('floor', 'Wood', 20));
+}
+
+function setPreset() {
+  let p = presets[$('preset').value];
+  if (!p || !p.alt) return;
+  for (let k of ['alt', 'lat', 'tmean', 'tamp', 'solar', 'wind', 'rh', 'groundT']) {
+    if ($(k)) $(k).value = p[k];
+  }
+}
+$('preset').onchange = setPreset;
+
+function num(id) { return parseFloat($(id).value) || 0; }
+function numEl(r, s) { return parseFloat(r.querySelector(s).value) || 0; }
+
+function layers(type) {
+  return [...$(`${type}Layers`).children].map(r => {
+    let matName = r.querySelector('.mat').value;
+    let mat = materials[matName];
+    return {
+      name: matName,
+      mm: numEl(r, '.mm'),
+      k: numEl(r, '.k'),
+      rho: numEl(r, '.rho'),
+      cp: mat.cp,
+      cost: mat.cost,
+      alpha: mat.alpha,
+      eps: mat.eps,
+      isPCM: mat.isPCM,
+      Lf: mat.Lf || 0,
+      Tm: mat.Tm || 21.0,
+      sigma: mat.sigma || 0.8
+    };
+  });
+}
+
+function layerProps(type, A, windSpeed) {
+  let ls = layers(type);
+  let R_cond = 0, C = 0, cost = 0, mass = 0, pcmMass = 0;
+  ls.forEach(x => {
+    let t = x.mm / 1000;
+    R_cond += t / (Math.max(0.0001, x.k) * A);
+    C += x.rho * A * t * x.cp;
+    cost += A * t * x.cost;
+    mass += x.rho * A * t;
+    if (x.isPCM) pcmMass += x.rho * A * t;
+  });
+
+  const h_out = 5.7 + 3.8 * windSpeed;
+  const h_in = 8.29;
+  const R_total = (1 / (h_out * A)) + R_cond + (1 / (h_in * A));
+  const U = 1 / (R_total * A);
+
+  return { ls, R_total, R_cond, U, C, cost, mass, pcmMass, h_out, h_in };
+}
+
+// Tropospheric Barometric Air Density Lapse Equation
+function computeAirDensity(altitude, tCelsius) {
+  const tKelvin = tCelsius + 273.15;
+  const pBaro = 101325.0 * Math.pow(1.0 - (0.0065 * altitude) / 288.15, 5.255);
+  return pBaro / (287.05 * tKelvin);
+}
+
+// Magnus-Tetens Psychrometric Dew Point Formulation
+function computeDewPoint(tIn, rh) {
+  const a = 17.625, b = 243.04;
+  const alpha = ((a * tIn) / (b + tIn)) + Math.log(Math.max(0.01, rh) / 100.0);
+  return (b * alpha) / (a - alpha);
+}
+
+// Apparent Heat Capacity Formulation for Latent Thermal Buffering
+function computeApparentCp(T, mat) {
+  if (!mat.isPCM) return mat.cp;
+  const gauss = Math.exp(-Math.pow(T - mat.Tm, 2) / (2 * Math.pow(mat.sigma, 2)));
+  const latentSpike = (mat.Lf / (Math.sqrt(2 * Math.PI) * mat.sigma)) * gauss;
+  return mat.cp + latentSpike;
+}
+
+function climateAt(h) {
+  if (climateCSV && climateCSV.length) {
+    let row = climateCSV.reduce((a, b) => Math.abs((b.hour ?? 0) - h) < Math.abs((a.hour ?? 0) - h) ? b : a, climateCSV[0]);
+    return { t: row.temp ?? row.outdoorTemp ?? num('tmean'), solar: row.solar ?? num('solar') * Math.max(0, Math.sin(Math.PI * (h - 6) / 12)), wind: row.wind ?? num('wind'), rh: row.rh ?? num('rh') };
+  }
+  let t = num('tmean') + num('tamp') * Math.sin(2 * Math.PI * (h - 9) / 24);
+  let daylight = Math.max(0, Math.sin(Math.PI * (h - 6) / 12));
+  let G = num('solar') * Math.pow(daylight, 0.75);
+  return { t, solar: G, wind: num('wind'), rh: num('rh') };
+}
+
+function sunFactor(h) {
+  let daylight = Math.max(0, Math.sin(Math.PI * (h - 6) / 12));
+  let orient = Math.abs(Math.cos((num('ori') - 180) * Math.PI / 180));
+  let tilt = Math.cos(num('tilt') * Math.PI / 180);
+  let lat = Math.abs(num('lat'));
+  let seasonal = 0.85 + 0.15 * Math.cos((num('doy') - 172) * 2 * Math.PI / 365) * (lat / 90);
+  return Math.max(0.12, daylight * (0.55 + 0.45 * orient) * (0.8 + 0.2 * tilt) * seasonal);
+}
+
+// Main Numerical Simulation Core
+function simulate() {
+  const L = num('L'), W = num('W'), H = num('H'), win = num('win'), door = num('door');
+  const wallA = 2 * (L + W) * H - Math.min(win + door, 2 * (L + W) * H * 0.5);
+  const roofA = L * W, floorA = roofA;
+  const shellA = wallA + roofA + floorA;
+
+  const windSpeed = num('wind');
+  const wp = layerProps('wall', Math.max(1, wallA), windSpeed);
+  const rp = layerProps('roof', roofA, windSpeed);
+  const fp = layerProps('floor', floorA, windSpeed);
+
+  const Uavg = (wp.U * wallA + rp.U * roofA + fp.U * floorA) / shellA;
+  const volume = L * W * H;
+
+  // Tropospheric barometric lapse air density
+  const rhoAir = computeAirDensity(num('alt'), num('tmean'));
+  const cpAir = 1005.0;
+
+  const Cair = rhoAir * volume * cpAir;
+  const Cenv = wp.C + rp.C + fp.C;
+
+  let Ti = num('startT');
+  let dt = Math.max(0.5, num('dt')) * 60;
+  let arr = [], sum = { solar: 0, cond: 0, vent: 0, rad: 0, heat: 0, equipInput: 0, internal: 0 };
+  let baselineHeatDeficitJ = 0, optimizedHeatDeficitJ = 0;
+
+  // Baseline military canvas shelter parameterization (U = 3.2 W/m²K, 1.2 ACH)
+  const U_baseline = 3.2;
+  const ACH_baseline = 1.2;
+  const UA_baseline = U_baseline * shellA;
+
+  for (let i = 0; i < 24 * 60 / dt; i++) {
+    let h = i * dt / 3600;
+    let c = climateAt(h);
+    let To = c.t;
+
+    let qSolar = (wp.ls[0]?.alpha ?? 0.5) * c.solar * (wallA * 0.55 + roofA * 0.75 + win) * sunFactor(h);
+    let qCond = Uavg * shellA * (Ti - To);
+
+    let ach = Math.max(0.01, num('ach')) * (1 + 0.035 * c.wind);
+    let qVent = rhoAir * (ach * volume / 3600) * cpAir * (Ti - To);
+
+    let qRad = 0.78 * 5.670374e-8 * shellA * (Math.pow(Ti + 273.15, 4) - Math.pow(To - 8 + 273.15, 4));
+    let qInt = num('people') * 100.0;
+
+    // Latent PCM dynamic apparent heat capacity buffering
+    let pcmExtraC = 0;
+    [...wp.ls, ...rp.ls, ...fp.ls].forEach(ly => {
+      if (ly.isPCM) {
+        let appCp = computeApparentCp(Ti, ly);
+        pcmExtraC += (ly.rho * ly.mm / 1000 * wallA) * (appCp - ly.cp);
+      }
+    });
+
+    let C_total = Math.max(1e5, Cair + Cenv + pcmExtraC);
+
+    let qHVAC = 0, input = 0, mode = $('mode').value, sp = num('setpoint'), cap = Math.max(0, num('equip')) * 1000;
+    if (mode === 'heat' && Ti < sp) {
+      qHVAC = Math.min(cap, (sp - Ti) * C_total / dt);
+      input = qHVAC / Math.max(0.05, num('eff'));
+    } else if (mode === 'cool' && Ti > sp) {
+      qHVAC = -Math.min(cap, (Ti - sp) * C_total / dt);
+      input = Math.abs(qHVAC) / Math.max(0.05, num('eff'));
+    }
+
+    let qnet = qSolar + qInt + qHVAC - qCond - qVent - qRad;
+    Ti += (qnet * dt) / C_total;
+    Ti = Math.max(-55, Math.min(75, Ti));
+
+    arr.push({ h, Ti, To, qSolar, qCond, qVent, qRad, qHVAC, input, internal: qInt, solar: c.solar, rh: c.rh });
+
+    sum.solar += Math.max(0, qSolar) * dt / 3.6e6;
+    sum.cond += Math.max(0, qCond) * dt / 3.6e6;
+    sum.vent += Math.max(0, qVent) * dt / 3.6e6;
+    sum.rad += Math.max(0, qRad) * dt / 3.6e6;
+    sum.heat += Math.abs(qHVAC) * dt / 3.6e6;
+    sum.equipInput += input * dt / 3.6e6;
+    sum.internal += qInt * dt / 3.6e6;
+
+    // Diesel logistics deficit tracking
+    let defOpt = Math.max(0, (Uavg * shellA + (ach * volume / 3600) * rhoAir * cpAir) * (18.5 - To) - qSolar - qInt);
+    let defBase = Math.max(0, (UA_baseline + (ACH_baseline * volume / 3600) * rhoAir * cpAir) * (18.5 - To) - qInt);
+    optimizedHeatDeficitJ += defOpt * dt;
+    baselineHeatDeficitJ += defBase * dt;
+  }
+
+  // Tactical Fuel Metrics (Diesel LHV: 42.6 MJ/kg, Density: 0.84 kg/L, Heater Efficiency: 75%)
+  const joulesPerLiter = 42.6e6 * 0.84 * 0.75;
+  const dieselSavedLiters = Math.max(0, (baselineHeatDeficitJ - optimizedHeatDeficitJ) / joulesPerLiter);
+  const co2OffsetKg = dieselSavedLiters * 2.68;
+
+  let target = num('target') || num('setpoint'), band = num('band');
+  let comfort = arr.filter(x => Math.abs(x.Ti - target) <= band).length / arr.length * 100;
+  let avg = arr.reduce((a, x) => a + x.Ti, 0) / arr.length;
+  let min = Math.min(...arr.map(x => x.Ti)), max = Math.max(...arr.map(x => x.Ti));
+
+  let mass = wp.mass + rp.mass + fp.mass;
+  let cost = (wp.cost + rp.cost + fp.cost) * 100;
+  let thickness = layers('wall').reduce((a, x) => a + x.mm, 0);
+
+  // Psychrometric calculations
+  const totalMoistureGph = num('people') * 50.0;
+  const indoorRH = Math.min(88, Math.max(20, num('rh') + (num('people') * 3.2) / (num('ach') + 0.05)));
+  const tDewPoint = computeDewPoint(avg, indoorRH);
+  const tWallInner = avg - ((wp.U * (avg - num('tmean'))) / wp.h_in);
+  const isFrostRisk = tWallInner <= tDewPoint;
+
+  return {
+    arr, wp, rp, fp, Uavg, volume, mass, cost, thickness,
+    comfort, avg, min, max, sum, wallA, roofA, rhoAir,
+    dieselSavedLiters, co2OffsetKg, totalMoistureGph,
+    indoorRH, tDewPoint, tWallInner, isFrostRisk
+  };
+}
+
+function runSimulation(msg = true) {
+  try {
+    lastResult = simulate();
+    render(lastResult);
+    if (msg) setStatus('Simulation succeeded: Dynamic lapse, PCM latent spurt and ODE steps evaluated.', 'good');
+  } catch (e) {
+    setStatus('Simulation error: ' + e.message, 'danger');
+  }
+}
+
+function setStatus(t, kind = '') {
+  let s = $('status');
+  s.textContent = t;
+  s.className = 'status ' + kind;
+}
+
+function render(r) {
+  $('metrics').innerHTML = [
+    ['Comfort Compliance', r.comfort.toFixed(1) + '%', `Target ${num('target')}±${num('band')}°C`, 'green'],
+    ['Avg Indoor Temp', r.avg.toFixed(1) + ' °C', `Range: ${r.min.toFixed(1)} to ${r.max.toFixed(1)}°`, 'accent'],
+    ['Enclosure U-Value', r.Uavg.toFixed(3) + ' W/m²K', 'Area-weighted composite', 'accent'],
+    ['Altitude Air Density', r.rhoAir.toFixed(3) + ' kg/m³', `Tropospheric Lapse @ ${num('alt')}m`, 'amber'],
+    ['Diesel Saved Daily', r.dieselSavedLiters.toFixed(1) + ' L/d', `${r.co2OffsetKg.toFixed(1)} kg/d CO₂ off`, 'green']
+  ].map(x => `<div class="metric ${x[3]}"><small>${x[0]}</small><div class="v">${x[1]}</div><small>${x[2]}</small></div>`).join('');
+
+  $('thermalTable').innerHTML = `<table>
+    <tr><td>Wall Transmittance</td><td class="val">${r.wp.U.toFixed(3)} W/m²K</td></tr>
+    <tr><td>Roof Transmittance</td><td class="val">${r.rp.U.toFixed(3)} W/m²K</td></tr>
+    <tr><td>Floor Transmittance</td><td class="val">${r.fp.U.toFixed(3)} W/m²K</td></tr>
+    <tr><td>Enclosure Volume</td><td class="val">${r.volume.toFixed(1)} m³</td></tr>
+    <tr><td>Total Envelope Mass</td><td class="val">${r.mass.toFixed(0)} kg</td></tr>
+  </table>`;
+
+  $('energyTable').innerHTML = `<table>
+    <tr><td>Solar Absorbed</td><td class="val">${r.sum.solar.toFixed(1)} kWh</td></tr>
+    <tr><td>Conduction Loss</td><td class="val">${r.sum.cond.toFixed(1)} kWh</td></tr>
+    <tr><td>Ventilation Loss</td><td class="val">${r.sum.vent.toFixed(1)} kWh</td></tr>
+    <tr><td>Radiation Sky Loss</td><td class="val">${r.sum.rad.toFixed(1)} kWh</td></tr>
+    <tr><td>Fuel Saved vs Tent</td><td class="val" style="color:var(--good)">${r.dieselSavedLiters.toFixed(1)} L/day</td></tr>
+    <tr><td>CO₂ Emission Slashed</td><td class="val" style="color:var(--good)">${r.co2OffsetKg.toFixed(1)} kg/day</td></tr>
+  </table>`;
+
+  let frostHTML = r.isFrostRisk
+    ? `<div class="note danger-note"><b>CRITICAL FROST HAZARD:</b> Inside wall temp (${r.tWallInner.toFixed(1)}°C) falls below occupant dew point (${r.tDewPoint.toFixed(1)}°C). Interstitial freeze-thaw degradation detected. Increase insulation or mechanical ventilation.</div>`
+    : `<div class="note success"><b>CONDENSATION SAFE:</b> Inner boundary temp (${r.tWallInner.toFixed(1)}°C) exceeds occupant dew point (${r.tDewPoint.toFixed(1)}°C) by ${(r.tWallInner - r.tDewPoint).toFixed(1)}°C margin.</div>`;
+
+  $('insight').innerHTML = `
+    ${frostHTML}
+    <div class="note" style="margin-top:8px">
+      <b>Moisture Respiration:</b> ${r.totalMoistureGph.toFixed(0)} g/h vapor release @ estimated ${r.indoorRH.toFixed(0)}% RH.
+    </div>
+  `;
+
+  drawTemp(r.arr);
+  drawHeat(r.arr);
+  drawShelter();
+  drawWallGradient(r);
+  $('audit').innerHTML = auditHTML(r);
+}
+
+function drawBase(c) {
+  let ctx = c.getContext('2d'), dpr = devicePixelRatio || 1;
+  let w = c.clientWidth, h = c.clientHeight;
+  c.width = w * dpr; c.height = h * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  
+  const isLight = document.body.classList.contains('light-theme');
+  ctx.fillStyle = isLight ? '#ffffff' : '#060e1c';
+  ctx.fillRect(0, 0, w, h);
+  
+  return ctx;
+}
+
+function chart(ctx, series, drawComfort = false) {
+  const isLight = document.body.classList.contains('light-theme');
+  let c = ctx.canvas, w = c.clientWidth, h = c.clientHeight, p = { l: 50, r: 20, t: 22, b: 32 };
+  let all = series.flatMap(s => s.y);
+  let lo = Math.min(...all), hi = Math.max(...all);
+  if (hi - lo < 2) { hi += 2; lo -= 2; }
+
+  // Draw 18°C - 24°C Comfort Zone Band (Distinct Green Target Zone)
+  if (drawComfort) {
+    let y24 = p.t + (h - p.t - p.b) * (hi - 24) / (hi - lo);
+    let y18 = p.t + (h - p.t - p.b) * (hi - 18) / (hi - lo);
+    ctx.fillStyle = isLight ? 'rgba(13, 115, 48, 0.16)' : 'rgba(0, 255, 136, 0.12)';
+    ctx.fillRect(p.l, y24, w - p.l - p.r, y18 - y24);
+    ctx.strokeStyle = isLight ? 'rgba(13, 115, 48, 0.6)' : 'rgba(0, 255, 136, 0.45)';
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(p.l, y24); ctx.lineTo(w - p.l - p.r, y24);
+    ctx.moveTo(p.l, y18); ctx.lineTo(w - p.l - p.r, y18);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Grid Lines
+  ctx.strokeStyle = isLight ? '#cbd5e1' : '#152740';
+  ctx.lineWidth = 1.2;
+  for (let i = 0; i < 5; i++) {
+    let y = p.t + (h - p.t - p.b) * i / 4;
+    ctx.beginPath(); ctx.moveTo(p.l, y); ctx.lineTo(w - p.r, y); ctx.stroke();
+    ctx.fillStyle = isLight ? '#0f172a' : '#7b9ec4';
+    ctx.font = '800 11.5px JetBrains Mono';
+    ctx.fillText((hi - (hi - lo) * i / 4).toFixed(1) + '°', 8, y + 4);
+  }
+
+  // Series Plots (Thick Lines for Crisp Distance Visibility)
+  series.forEach(s => {
+    ctx.strokeStyle = s.color;
+    ctx.lineWidth = s.width || 2.5;
+    if (s.dash) ctx.setLineDash(s.dash); else ctx.setLineDash([]);
+    ctx.beginPath();
+    s.y.forEach((v, i) => {
+      let x = p.l + (w - p.l - p.r) * i / (s.y.length - 1);
+      let y = p.t + (h - p.t - p.b) * (hi - v) / (hi - lo);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    ctx.setLineDash([]);
+  });
+
+  ctx.fillStyle = isLight ? '#0f172a' : '#7b9ec4';
+  ctx.font = '800 11.5px JetBrains Mono';
+  ctx.fillText('0h', p.l, h - 8);
+  ctx.fillText('12h (Noon Peak)', p.l + (w - p.l - p.r) / 2 - 40, h - 8);
+  ctx.fillText('24h', w - 42, h - 8);
+}
+
+function drawTemp(a) {
+  const isLight = document.body.classList.contains('light-theme');
+  let ctx = drawBase($('tempChart'));
+  chart(ctx, [
+    { y: a.map(x => x.Ti), color: isLight ? '#0055b3' : '#00f5ff', width: 3.5 },
+    { y: a.map(x => x.To), color: isLight ? '#a14300' : '#ffc400', width: 2.2, dash: [4, 4] }
+  ], true);
+}
+
+function drawHeat(a) {
+  const isLight = document.body.classList.contains('light-theme');
+  let hourly = Array.from({ length: 24 }, (_, h) => a.filter(x => Math.floor(x.h) === h));
+  let sums = k => hourly.map(z => z.reduce((s, x) => s + Math.max(0, x[k]), 0));
+  let ctx = drawBase($('heatChart'));
+  chart(ctx, [
+    { y: sums('qHVAC'), color: isLight ? '#0d7330' : '#00ff88', width: 2.8 },
+    { y: sums('qSolar'), color: isLight ? '#a14300' : '#ffc400', width: 2.8 },
+    { y: sums('qCond').map(v => -v), color: isLight ? '#b91c1c' : '#ff2a5f', width: 2.4 },
+    { y: sums('qVent').map(v => -v), color: isLight ? '#0055b3' : '#38bdf8', width: 2.4 }
+  ]);
+}
+
+function drawShelter() {
+  const isLight = document.body.classList.contains('light-theme');
+  let c = $('shelterCanvas'), ctx = drawBase(c), w = c.clientWidth, h = c.clientHeight;
+  let L = num('L'), W = num('W'), H = num('H');
+  let sx = Math.min(w * 0.55 / L, h * 0.55 / H), x = 60, y = h - 50;
+
+  ctx.strokeStyle = isLight ? '#0055b3' : '#00f5ff';
+  ctx.lineWidth = 3.2;
+  ctx.strokeRect(x, y - H * sx, L * sx, H * sx);
+
+  ctx.strokeStyle = isLight ? '#0d7330' : '#00ff88';
+  ctx.strokeRect(x + L * sx * 0.1, y - H * sx * 0.75, num('win') / Math.max(0.1, L * H) * L * sx, y - H * sx * 0.75 + 32);
+
+  ctx.fillStyle = isLight ? '#000000' : '#ffffff';
+  ctx.font = '800 12.5px JetBrains Mono';
+  ctx.fillText(`Floorplan: ${L}m × ${W}m`, x, y + 24);
+  ctx.fillText(`Apex Height: ${H}m`, x + L * sx + 18, y - H * sx / 2);
+  ctx.fillText(`Azimuth: ${num('ori')}°`, x + L * sx + 18, y - H * sx / 2 + 20);
+  ctx.fillText('TRUE N ↑', w - 85, 28);
+}
+
+// 1D Wall Conduction Cross-Section Thermal Gradient
+function drawWallGradient(r) {
+  const isLight = document.body.classList.contains('light-theme');
+  let c = $('wallCanvas'), ctx = drawBase(c), w = c.clientWidth, h = c.clientHeight;
+  let layersList = r.wp.ls;
+  if (!layersList || !layersList.length) return;
+
+  let totalThick = layersList.reduce((s, x) => s + x.mm, 0);
+  let padX = 55, padY = 32;
+  let drawW = w - padX * 2, drawH = h - padY * 2;
+
+  let currX = padX;
+  let deltaT = r.avg - num('tmean');
+  let tCurr = num('tmean') + ((1 / r.wp.h_out) / (r.wp.R_total * r.wallA)) * deltaT;
+
+  let tPoints = [{ x: padX - 25, t: num('tmean') }, { x: padX, t: tCurr }];
+
+  // Draw Layer Blocks
+  layersList.forEach((ly, idx) => {
+    let layerW = (ly.mm / totalThick) * drawW;
+    ctx.fillStyle = isLight ? (idx % 2 === 0 ? '#cbd5e1' : '#e2e8f0') : (idx % 2 === 0 ? '#10223d' : '#0a1a30');
+    ctx.fillRect(currX, padY, layerW, drawH);
+    ctx.strokeStyle = isLight ? '#64748b' : '#1f3c66';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(currX, padY, layerW, drawH);
+
+    // Label
+    ctx.fillStyle = isLight ? '#000000' : '#ffffff';
+    ctx.font = '800 11px JetBrains Mono';
+    ctx.fillText(`${ly.name.slice(0, 8)} (${ly.mm}mm)`, currX + 4, h - 12);
+
+    let rLayer = (ly.mm / 1000) / (ly.k * r.wallA);
+    tCurr += (rLayer / (r.wp.R_total * r.wallA)) * deltaT;
+    currX += layerW;
+    tPoints.push({ x: currX, t: tCurr });
+  });
+
+  tPoints.push({ x: w - 15, t: r.avg });
+
+  // Draw Temperature Line Across Envelope
+  let minT = Math.min(num('tmean'), r.avg) - 4;
+  let maxT = Math.max(num('tmean'), r.avg) + 4;
+
+  ctx.strokeStyle = isLight ? '#b91c1c' : '#ff2a5f';
+  ctx.lineWidth = 3.2;
+  ctx.beginPath();
+  tPoints.forEach((pt, i) => {
+    let py = padY + drawH * (maxT - pt.t) / (maxT - minT);
+    if (i === 0) ctx.moveTo(pt.x, py); else ctx.lineTo(pt.x, py);
+  });
+  ctx.stroke();
+
+  // Nodes
+  tPoints.forEach(pt => {
+    let py = padY + drawH * (maxT - pt.t) / (maxT - minT);
+    ctx.fillStyle = isLight ? '#0055b3' : '#00f5ff';
+    ctx.beginPath(); ctx.arc(pt.x, py, 4.5, 0, Math.PI * 2); ctx.fill();
+  });
+}
+
+function auditHTML(r) {
+  let checks = [
+    ['Tropospheric Barometric Lapse', 'good', `Corrected for ${num('alt')}m elevation (ρ = ${r.rhoAir.toFixed(3)} kg/m³)`],
+    ['PCM Latent Thermal Mass', 'good', 'Apparent heat capacity formulation integrated into ODE'],
+    ['Wind Boundary Layer Convection', 'good', `Dynamic film coefficient h_out = ${r.wp.h_out.toFixed(1)} W/m²K`],
+    ['Psychrometric Interstitial Frost', r.isFrostRisk ? 'danger' : 'good', r.isFrostRisk ? 'Frost alert: Inner wall surface drops below dew point' : `Safe margin: +${(r.tWallInner - r.tDewPoint).toFixed(1)}°C`],
+    ['Defense Fuel Verification', 'good', `Calculates equivalent liters of diesel saved (${r.dieselSavedLiters.toFixed(1)} L/d)`],
+    ['Field Sensor Calibration', measuredCSV ? 'good' : 'warn', measuredCSV ? 'Measured dataset loaded' : 'Upload measured dataset to compute statistical agreement (R², MAE)']
+  ];
+  return checks.map(x => `<div class="status ${x[1]}"><b>${x[0]}:</b> ${x[2]}</div>`).join('<div style="height:6px"></div>');
+}
+
+// Multi-Objective Optimization
+function optimize() {
+  let mats = ['PUF', 'Aerogel', 'VIP'];
+  let thicknesses = [40, 60, 80, 100];
+  let pcmOptions = [0, 10, 20];
+  let oldHtml = $('wallLayers').innerHTML;
+
+  let rows = [];
+  for (let m of mats) {
+    for (let th of thicknesses) {
+      for (let pcmTh of pcmOptions) {
+        $('wallLayers').innerHTML = '';
+        $('wallLayers').appendChild(layerRow('wall', 'Wood', 15));
+        $('wallLayers').appendChild(layerRow('wall', m, th));
+        if (pcmTh > 0) $('wallLayers').appendChild(layerRow('wall', 'PCM_RT21', pcmTh));
+        $('wallLayers').appendChild(layerRow('wall', 'Wood', 10));
+
+        let r = simulate();
+        let fuelScore = r.dieselSavedLiters / 25.0;
+        let comfortScore = r.comfort / 100.0;
+        let massScore = 1.0 / (1.0 + r.mass / 4000.0);
+
+        let score = (num('wComfort') * comfortScore) + (num('wEnergy') * fuelScore) + (num('wCost') * massScore);
+        let feasible = r.thickness <= num('maxThick') && r.mass <= num('maxMass') && r.cost <= num('maxCost');
+
+        if (feasible) {
+          rows.push({ m, th, pcmTh, comfort: r.comfort, diesel: r.dieselSavedLiters, mass: r.mass, u: r.wp.U, score });
+        }
+      }
+    }
+  }
+
+  $('wallLayers').innerHTML = oldHtml;
+  rows.sort((a, b) => b.score - a.score);
+  let top = rows.slice(0, 10);
+
+  $('optResults').innerHTML = `<table>
+    <tr><th>Rank</th><th>Core Substrate</th><th>Core (mm)</th><th>PCM (mm)</th><th>Wall U</th><th>Comfort</th><th>Diesel Saved</th><th>Mass</th><th>Pareto Score</th></tr>
+    ${top.map((x, i) => `<tr>
+      <td class="rank">#${i + 1}</td>
+      <td>${x.m}</td>
+      <td>${x.th} mm</td>
+      <td>${x.pcmTh} mm</td>
+      <td>${x.u.toFixed(3)}</td>
+      <td>${x.comfort.toFixed(1)}%</td>
+      <td style="color:var(--good); font-weight:800;">${x.diesel.toFixed(1)} L/d</td>
+      <td>${x.mass.toFixed(0)} kg</td>
+      <td style="color:var(--accent); font-weight:800">${x.score.toFixed(3)}</td>
+    </tr>`).join('')}
+  </table>`;
+
+  switchView('optimizer', 'PARETO OPTIMIZER', document.querySelectorAll('.menu-opt')[1]);
+  setStatus(`Optimizer evaluated ${mats.length * thicknesses.length * pcmOptions.length} tactical combinations.`, 'good');
+}
+
+// Numerical Timestep Convergence Test[cite: 1]
+function convergence() {
+  let base = num('dt'), ds = [base * 4, base * 2, base, Math.max(0.5, base / 2), Math.max(0.5, base / 4)], old = base, arr = [];
+  ds.forEach(d => {
+    $('dt').value = d;
+    let r = simulate();
+    arr.push({ dt: d, avg: r.avg, comfort: r.comfort, heat: r.sum.heat });
+  });
+  $('dt').value = old;
+  let dif = Math.abs(arr[arr.length - 1].avg - arr[arr.length - 2].avg);
+  setStatus(`Convergence check: Finest vs next step difference = ${dif.toFixed(4)} °C.`, dif < 0.15 ? 'good' : 'warn');
+  alert('Timestep Convergence Log:\n\n' + arr.map(x => `${x.dt.toFixed(2)} min -> Avg Temp: ${x.avg.toFixed(2)} °C, Comfort: ${x.comfort.toFixed(1)}%, Heat: ${x.heat.toFixed(2)} kWh`).join('\n') + `\n\nFine difference: ${dif.toFixed(4)} °C`);
+}
+
+// Field Sensor Measured CSV Validation ($R^2$, MAE, RMSE)[cite: 1]
+$('measuredFile').onchange = e => {
+  let file = e.target.files[0];
+  if (!file) return;
+  let reader = new FileReader();
+  reader.onload = () => {
+    let lines = reader.result.trim().split(/\r?\n/).filter(Boolean);
+    let head = lines[0].split(',').map(s => s.trim());
+    measuredCSV = lines.slice(1).map(l => {
+      let a = l.split(','); let o = {};
+      head.forEach((h, i) => o[h] = parseFloat(a[i]));
+      return o;
+    });
+    validateField();
+  };
+  reader.readAsText(file);
+};
+
+function validateField() {
+  if (!lastResult || !measuredCSV) return;
+  let pairs = measuredCSV.map(o => {
+    let h = o.hour ?? o.time;
+    let sim = lastResult.arr.reduce((a, b) => Math.abs(b.h - h) < Math.abs(a.h - h) ? b : a, lastResult.arr[0]);
+    return [o.measuredIndoorTemp ?? o.measured ?? o.temp, sim.Ti];
+  }).filter(x => Number.isFinite(x[0]));
+
+  if (!pairs.length) {
+    $('validationOut').innerHTML = '<div class="status warn">CSV requires "hour" and "measuredIndoorTemp" columns.</div>';
+    return;
+  }
+
+  let mae = pairs.reduce((s, x) => s + Math.abs(x[0] - x[1]), 0) / pairs.length;
+  let rmse = Math.sqrt(pairs.reduce((s, x) => s + Math.pow(x[0] - x[1], 2), 0) / pairs.length);
+  let ym = pairs.reduce((s, x) => s + x[0], 0) / pairs.length;
+  let ss = pairs.reduce((s, x) => s + Math.pow(x[0] - ym, 2), 0);
+  let res = pairs.reduce((s, x) => s + Math.pow(x[0] - x[1], 2), 0);
+  let r2 = ss ? 1 - res / ss : NaN;
+
+  $('validationOut').innerHTML = `<div class="cards">
+    <div class="metric"><small>Samples</small><div class="v">${pairs.length}</div></div>
+    <div class="metric green"><small>MAE</small><div class="v">${mae.toFixed(2)} °C</div></div>
+    <div class="metric"><small>RMSE</small><div class="v">${rmse.toFixed(2)} °C</div></div>
+    <div class="metric accent"><small>R² Correlation</small><div class="v">${Number.isFinite(r2) ? r2.toFixed(3) : '—'}</div></div>
+  </div>
+  <div class="note success" style="margin-top:12px">Agreement metrics computed against loaded experimental dataset.</div>`;
+}
+
+function exportReport() {
+  if (!lastResult) runSimulation(false);
+  let r = lastResult;
+  let text = `========================================================================
+THERMASETU // DRDO TACTICAL THERMAL SHELTER REPORT
+Generated: ${new Date().toLocaleString()}
+========================================================================
+
+MISSION BOUNDARY CONDITIONS
+Preset: ${$('preset').value}
+Elevation: ${num('alt')} m | Latitude: ${num('lat')}° | Day of Year: ${num('doy')}
+Outdoor Ambient: Mean ${num('tmean')} °C, Amplitude ±${num('tamp')} °C
+Barometric Air Density: ${r.rhoAir.toFixed(3)} kg/m³
+Peak Solar: ${num('solar')} W/m² | Gale Wind: ${num('wind')} m/s
+
+ENVELOPE TRANSMITTANCE & GEOMETRY
+Enclosure Area-Weighted U-Value: ${r.Uavg.toFixed(3)} W/m²K
+Wall Transmittance: ${r.wp.U.toFixed(3)} W/m²K
+Roof Transmittance: ${r.rp.U.toFixed(3)} W/m²K
+Total Envelope Payload Mass: ${r.mass.toFixed(0)} kg
+
+HABITABILITY & DEFENSE LOGISTICS
+Comfort Compliance (18°-24°C Target): ${r.comfort.toFixed(1)}%
+24-Hour Diurnal Range: ${r.min.toFixed(1)} °C to ${r.max.toFixed(1)} °C
+Daily Diesel Fuel Saved: ${r.dieselSavedLiters.toFixed(1)} Liters/day
+Daily Direct Carbon Offset: ${r.co2OffsetKg.toFixed(1)} kg/day
+
+PSYCHROMETRICS & STRUCTURAL RISK
+Calculated Dew Point (T_dp): ${r.tDewPoint.toFixed(1)} °C
+Inside Surface Boundary Temp (T_w,in): ${r.tWallInner.toFixed(1)} °C
+Interstitial Frost State: ${r.isFrostRisk ? 'HAZARD - CONDENSATION PRESENT' : 'SAFE - DRY BOUNDARY'}
+`;
+  let blob = new Blob([text], { type: 'text/plain' });
+  let a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'ThermaSetu_Tactical_Report.txt';
+  a.click();
+}
+
+// 90-Second Fast Demo Execution[cite: 1]
+function runMissionDemo() {
+  $('preset').value = 'Ladakh';
+  setPreset();
+  $('people').value = 4;
+  $('ach').value = 0.5;
+  $('startT').value = 10;
+  $('target').value = 21;
+  runSimulation(false);
+  switchView('dashboard', 'DASHBOARD', document.querySelectorAll('.menu-opt')[0]);
+  $('demoCards').innerHTML = `
+    <div class="three-cards">
+      <div class="metric accent"><small>Phase 1</small><div class="v">Lapse Model</div><small>3,500m barometric density</small></div>
+      <div class="metric green"><small>Phase 2</small><div class="v">PCM Damping</div><small>Peak shaving at 21°C</small></div>
+      <div class="metric"><small>Phase 3</small><div class="v">Fuel Slashed</div><small>${lastResult.dieselSavedLiters.toFixed(1)} L/day diesel saved</small></div>
+    </div>
+    <div class="note success" style="margin-top:12px">
+      <b>Pitch Delivery:</b> "ThermaSetu delivers area-specific shelter engineering by correcting for high-altitude barometric density, buffering freezing border nights with Phase Change Materials, and verifying indoor habitability without excessive diesel dependence."
+    </div>
+  `;
+}
+
+window.addEventListener('resize', () => { if (lastResult) render(lastResult); });
+
+// Initialize Default State
+initLayers();
+runSimulation(false);
+</script>
+</body>
+</html>
