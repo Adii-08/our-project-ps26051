@@ -1,41 +1,71 @@
 # ThermaSetu (थर्मसेतु)
-### High-Altitude Thermal Shelter Modeler & Optimizer
+### High-Altitude Thermal Shelter Modeling & Optimization Tool
 **Built for DRDO Problem Statement · Smart India Hackathon (SIH26051)**
 
-ThermaSetu is a lightweight, browser-based simulation tool we put together to design and test thermal shelters for extreme high-altitude border posts.
+When soldiers are deployed at forward posts like Siachen Base Camp, Kargil, or Eastern Ladakh, winter temperatures consistently stay between -20°C and -40°C. A surprising number of these outposts still rely on standard canvas tents paired with traditional kerosene Bukhari stoves.
 
-When troops are stationed at spots like the Siachen Base Camp or Eastern Ladakh, ambient temps regularly drop past -25°C. Right now, a lot of forward camps still rely on basic canvas tents and unvented Bukhari kerosene heaters. They end up burning 20+ liters of fuel a day per tent just to keep the inside barely livable. 
+The practical outcome of that setup is tough on troops and logistics:
+- Each tent burns through 20 to 25 liters of kerosene every single day just to keep interior temperatures slightly above freezing.
+- The indoor temperature gradient is severe: a soldier's head might be at +18°C while their feet near the ground sit at -2°C.
+- Breath and stove moisture hit the freezing inner fabric at night, turn to rime frost, and melt into cold drips onto sleeping bags the moment the morning heater kicks on.
+- Sealing the shelter to trap warmth routinely leads to dangerous carbon monoxide and carbon dioxide build-up in thin, oxygen-poor air.
 
-If you want to digitally test a better design, your standard option is running a full 3D CFD mesh in something like ANSYS or OpenFOAM. But waiting hours (or days) for a mesh to converge just to test a different insulation thickness isn't practical for rapid field engineering. ThermaSetu bridges this gap. It runs an implicit 1D finite-difference heat transfer model completely in the browser, giving you accurate temperature profiles and fuel estimates in a fraction of a second.
+To design something better, engineers usually have to fire up heavy 3D CFD suites like ANSYS Fluent or OpenFOAM. But setting up meshes and waiting 6 to 12 hours for a single case to converge is unhelpful when a field team needs to test twenty different insulation layups before dinner.
 
----
-
-## What the tool actually does
-
-* **5-Node Transient Heat Solver:** Instead of relying on crude steady-state R-values, we discretize the wall assembly into 5 nodes (exterior face, structural shell, core insulation, PCM buffer, and interior wall). The engine solves these simultaneously using an implicit Crank-Nicolson formulation and the Thomas Algorithm (TDMA). This means it’s unconditionally stable—it won't blow up with `NaN` errors even if you crank the time step up or down.
-* **Phase Change Material (PCM) Buffer Modeling:** In the real world, PCMs don't just magically melt at a single sharp temperature. We modeled their apparent heat capacity ($C_{\text{app}}$) as a smooth Gaussian bell curve over their phase change range. This lets us see if a PCM layer will *actually* cycle and release latent heat, or if it's just going to sit there as dead weight during a sub-zero winter.
-* **Live Weather via Open-Meteo:** No need to guess solar radiation or wind speeds. Just hit "Fetch Live Weather" and the tool pings the Open-Meteo API for the exact coordinates of Ladakh, Siachen, Tawang, etc., pulling hourly ambient temps, solar irradiance, and wind speeds.
-* **Altitude-Adjusted Air Density:** Air density drops by nearly 40% at 5,000 meters. If you calculate ventilation heat loss using sea-level air density, your numbers will be garbage. The tool automatically corrects air properties using the standard barometric formula based on your chosen altitude.
-* **Fresh Air & Bukhari Safety Checks:** Sealing a shelter tight saves heat, but if soldiers are burning kerosene indoors, CO and CO₂ levels can become lethal fast. We wrote an air exchange check that calculates the exact minimum ACH (Air Changes per Hour) needed to keep the air safe based on occupant respiration and stove draft.
-* **ISO 7730 Comfort Index (PMV/PPD):** Just looking at air temperature doesn't tell you if a soldier is actually freezing. The model calculates Fanger's Predicted Mean Vote (PMV) by factoring in radiant exchange with cold interior walls, military winter clothing levels (2.5 clo), and metabolic rates.
-* **Pareto Optimizer:** Basically a screening tool that loops through combinations of Aerogel, PUF, VIP, and PCM thicknesses to rank designs. It finds the setups that give the highest comfort for the lowest material weight and fuel cost.
-* **Field Sensor Validation:** Got measured data from a physical prototype? You can drop a simple CSV (`hour,measuredIndoorTemp`) into the app to plot your real-world readings directly against our simulated curves and automatically calculate MAE and RMSE values.
-* **Built-in Assistant:** A floating AI copilot widget you can ask questions about your current setup. For instance, "Why isn't my PCM freezing?" or "Is this ACH safe for 4 troops?"
+We built **ThermaSetu** to fix this tradeoff. It runs a transient 1D numerical heat transfer engine right inside your web browser. You change an insulation layer or alter the roof pitch, and you get immediate, data-backed operational figures: interior thermal curves, fuel burn, air safety boundaries, and condensation risks—all calculated in milliseconds.
 
 ---
 
-## System Architecture (Yes, it's one file)
+## What the Software Actually Does
 
-We intentionally built the entire application as a single, self-contained HTML file (`index.html`) using vanilla JavaScript and HTML5 Canvas. 
+### 1. 5-Node 1D Transient Heat Solver (Implicit TDMA)
+Most quick calculators just take an assembly's static U-value and multiply it by a temperature difference. That completely ignores how thermal mass delays and dampens cold snaps overnight.
 
-- **Zero Node.js / NPM dependencies**
-- **No build steps (no Webpack, Vite, etc.)**
-- **No bloated external UI frameworks**
+Instead, we slice the exterior wall into five distinct physical nodes:
+1. x0: The exterior boundary exposed to wind and ambient air
+2. x1: The outer cladding layer
+3. x2: The primary insulation core (Aerogel, PUF, or VIP)
+4. x3: The phase-change material (PCM) buffer layer
+5. x4: The interior wall surface facing the soldiers
 
-Why? Because forward-deployed field engineers, military officers, or hackathon evaluators shouldn't have to `npm install` just to run a thermal model. You can literally save the `.html` file to a flash drive, open it on an offline field laptop in the middle of nowhere, and it works flawlessly.
+Rather than using an explicit forward-Euler step (which quickly blows up into NaN values unless your time step is tiny), we implemented a fully implicit Crank-Nicolson formulation solved with the **Thomas Algorithm (Tridiagonal Matrix Algorithm - TDMA)**. The solver is unconditionally stable, meaning you can jump between 30-second steps and 30-minute steps without the math diverging.
 
-```text
-thermasetu/
-├── index.html            # The whole app (UI, numerical solver, charts, assistant)
-├── ThermaSetu logo.png   # Shelter emblem displayed in the header
-└── README.md             # You are here
+### 2. Realistic Phase Change Material (PCM) Buffer Modeling
+Most theoretical setups assume a PCM melts and freezes at an exact single-degree temperature point. In real life, especially with composite salts and paraffin waxes, phase transitions happen gradually across a temperature window.
+
+We model the apparent heat capacity (C_app) of the PCM layer using a Gaussian distribution centered around its melting point (Tm):
+C_app(T) = Cp + [ Lf / (sigma * sqrt(2*pi)) ] * exp( -(T - Tm)^2 / (2 * sigma^2) )
+
+This lets us test whether a PCM like RT21 will actually complete its daily freeze-thaw cycle in a specific climate, or if it will simply freeze solid on day one and act as dead structural weight.
+
+### 3. Live Geospatial Weather via Open-Meteo
+You don't have to guess solar radiation, ambient temperatures, or wind patterns. Clicking **"Fetch Live Weather"** queries the Open-Meteo API using the coordinates of the selected deployment sector (Ladakh, Siachen, Kargil, Tawang, or Thar). The application downloads real 24-hour diurnal curves, solar irradiance, relative humidity, and wind speeds, feeding them directly into the solver.
+
+### 4. Altitude Corrections for Thin Air
+Air density drops from ~1.225 kg/m^3 at sea level down to roughly 0.70 kg/m^3 at an elevation of 5,000 meters. If you calculate convective draft losses or ventilation heat loss using standard sea-level numbers, your calculations overestimate heat loss by roughly 40%. ThermaSetu recalculates barometric pressure and localized air density using the tropospheric barometric lapse formula:
+rho_air(z) = [ P0 / (R_spec * T_K) ] * (1 - 0.0065 * z / 288.15)^5.255
+
+### 5. Life-Support Air Exchange & Flue Safety Checks
+Sealing a military shelter tight stops heat loss, but if you have four soldiers breathing and an active Bukhari heater burning fuel in an enclosed space, oxygen levels fall while CO and CO2 accumulate rapidly.
+
+The software calculates the minimum required Air Changes per Hour (ACH_min) based on soldier respiration rates and heater combustion requirements at high altitude. If your configured ventilation is set lower than what is safe, the dashboard flags a warning and lets you auto-correct the ventilation rate with a single click.
+
+### 6. ISO 7730 Fanger PMV / PPD Ergonomics
+Air temperature alone doesn't tell you if someone is comfortable. A room with 20°C air will still feel freezing if the surrounding walls are at -5°C because your body radiates heat straight into them.
+
+The software computes:
+- **Mean Radiant Temperature (T_mrt)** based on all surface temperatures.
+- **Operative Temperature (T_op)** combining radiative and convective factors.
+- **Fanger PMV (Predicted Mean Vote)** and **PPD (Percentage of People Dissatisfied)** configured for soldiers wearing 2.5 clo heavy winter combat gear under light metabolic activity (1.2 met).
+- **Head-to-Ankle Vertical Temperature Gradient**, ensuring floor drafts don't violate ISO standards.
+
+### 7. Multi-Objective Pareto Screening
+The optimizer tab systematically evaluates combinations of Aerogel, PUF, and Vacuum Insulation Panels (VIP) along with varying thicknesses of phase-change material. It scores and ranks every viable setup against your chosen priorities: thermal comfort, daily kerosene saved, and total assembly weight.
+
+### 8. Field Sensor Validation
+If you have an experimental shelter or a test cubicle with temperature loggers installed, you can upload your CSV data directly (`hour,measuredIndoorTemp`). The engine plots your recorded sensor readings alongside the simulated curve and calculates the Mean Absolute Error (MAE), Root Mean Square Error (RMSE), and correlation.
+
+### 9. Integrated Tactical Copilot
+A floating assistant widget reads the current state of your simulation parameters directly from memory. You can ask specific questions like *"Why isn't my PCM charging in Siachen?"* or *"Is an infiltration rate of 0.3 ACH safe for 4 troops?"* and receive practical explanations tied directly to your inputs.
+
+---
