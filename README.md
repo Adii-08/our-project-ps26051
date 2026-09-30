@@ -1,261 +1,41 @@
-# ThermaSetu: Area-Specific Thermal Shelter Optimizer
+# ThermaSetu (थर्मसेतु)
+### High-Altitude Thermal Shelter Modeler & Optimizer
+**Built for DRDO Problem Statement · Smart India Hackathon (SIH26051)**
 
-**ThermaSetu** is a physics-based tactical shelter screening and microclimate digital twin engine developed for **DRDO Problem Statement SIH26051** (*Software Based Model Development for Design of Area Specific Shelter for Thermal Comfort Maintenance*).
+ThermaSetu is a lightweight, browser-based simulation tool we put together to design and test thermal shelters for extreme high-altitude border posts.
 
-The software integrates classical chemical engineering transport phenomena (transient conduction, wind-coupled external convection, and sol-air radiation), high-altitude tropospheric barometric lapse adjustments, apparent heat capacity Phase Change Material (PCM) latent buffering, and psychrometric interstitial frost diagnostics into a decoupled web architecture.
+When troops are stationed at spots like the Siachen Base Camp or Eastern Ladakh, ambient temps regularly drop past -25°C. Right now, a lot of forward camps still rely on basic canvas tents and unvented Bukhari kerosene heaters. They end up burning 20+ liters of fuel a day per tent just to keep the inside barely livable. 
 
----
-
-## Key Capabilities
-
-* **Barometric Air Density Correction:** Dynamically calculates localized air density $\rho_{air}(z)$ via the barometric lapse formula (e.g., $0.70\text{ kg/m}^3$ at Siachen vs. $1.225\text{ kg/m}^3$ at sea level) to avoid overestimating ventilation and infiltration heat losses by 35–45%.
-* **Latent Thermal Mass Storage (PCM):** Uses the Apparent Heat Capacity method to capture daytime solar absorption and nocturnal latent discharge around a $21^\circ\text{C}$ phase transition band.
-* **Wind-Coupled Forced Convection:** Dynamically computes exterior boundary layer film coefficients as a function of local gale wind velocity ($h_{out} = 5.7 + 3.8 v_{wind}$).
-* **Psychrometric Interstitial Frost Diagnostics:** Applies the Magnus-Tetens relationship to evaluate occupant respiration dew point ($T_{dp}$) against interior wall boundary temperatures ($T_{w,in}$), flagging freeze-thaw degradation risks.
-* **Multi-Objective Pareto Optimization:** Iteratively analyzes insulation thickness, core substrate selection (Aerogel, PUF, VIP), and PCM mass to balance comfort compliance against structural payload limits.
-* **Empirical Validation & Numerical Auditing:** Includes a measured-data CSV evaluation workflow ($R^2$, MAE, RMSE) and a step-halving numerical timestep convergence test ($\Delta t \rightarrow \Delta t/2 \rightarrow \Delta t/4$).
+If you want to digitally test a better design, your standard option is running a full 3D CFD mesh in something like ANSYS or OpenFOAM. But waiting hours (or days) for a mesh to converge just to test a different insulation thickness isn't practical for rapid field engineering. ThermaSetu bridges this gap. It runs an implicit 1D finite-difference heat transfer model completely in the browser, giving you accurate temperature profiles and fuel estimates in a fraction of a second.
 
 ---
 
-## Core Governing Equations
+## What the tool actually does
 
-### 1. Dynamic Energy Conservation
-
-The room air node temperature ($T_{in}$) is integrated over discrete time intervals $\Delta t$:
-
-$$(C_{air} + C_{envelope} + m_{pcm}C_{app})\frac{dT_{in}}{dt} = \dot{Q}_{solar}(t) + \dot{Q}_{occ} + \dot{Q}_{aux}(t) - \dot{Q}_{cond}(t) - \dot{Q}_{vent}(t) - \dot{Q}_{rad}(t)$$
-
-### 2. Apparent Heat Capacity Formulation (PCM Latent Spike)
-
-To avoid tracking a discontinuous moving phase boundary, latent heat of fusion ($L_f$) is modeled as a temperature-dependent Gaussian enthalpy spike:
-
-$$C_{app}(T) = C_{p,sensible} + \left[ \frac{L_f}{\sqrt{2\pi}\sigma} \right] \exp\left( -\frac{(T - T_m)^2}{2\sigma^2} \right)$$
-
-* $T_m$: Melting plateau ($21.0^\circ\text{C}$)
-* $L_f$: Latent heat of fusion ($190{,}000\text{ J/kg}$ for paraffin wax RT21HC)
-* $\sigma$: Transition half-spread ($0.75^\circ\text{C} - 0.80^\circ\text{C}$)
-
-### 3. Tropospheric Barometric Lapse Air Density
-
-At high altitudes, air density drops significantly with elevation $z$ (meters):
-
-$$\rho_{air}(z) = \frac{P_0}{R_{spec}(T_{amb} + 273.15)} \left(1 - \frac{0.0065 z}{288.15}\right)^{5.255}$$
-
-Infiltration and ventilation load:
-
-$$\dot{Q}_{vent}(t) = \left(\frac{\text{ACH} \cdot V_{room}}{3600}\right) \rho_{air}(z) C_{p,air} (T_{in}(t) - T_{amb}(t))$$
-
-### 4. Overall Composite Transmittance ($U$-Value)
-
-For multi-layer envelopes (exterior cladding, insulation core, and PCM liner):
-
-$$R_{total} = \frac{1}{h_{out} A} + \sum_{j=1}^{n}\frac{L_j}{k_j A} + \frac{1}{h_{in} A}$$
-
-$$U = \frac{1}{R_{total} A} \quad [\text{W/m}^2\cdot\text{K}]$$
-
-### 5. Magnus-Tetens Psychrometric Dew Point & Frost Criterion
-
-Occupants release water vapor at $\approx 50\text{ g/h/soldier}$, raising indoor relative humidity ($RH$). The dew point is calculated via:
-
-$$\gamma(T_{in}, RH) = \frac{17.625 \cdot T_{in}}{243.04 + T_{in}} + \ln\left(\frac{RH}{100}\right), \quad T_{dp} = \frac{243.04 \cdot \gamma}{17.625 - \gamma}$$
-
-The inner wall surface boundary temperature:
-
-$$T_{w,in} = T_{in} - \frac{U_{wall}(T_{in} - T_{amb})}{h_{in}}$$
-
-$$\text{Frost Risk Flag} =  \begin{cases}  \text{CRITICAL HAZARD}, & \text{if } T_{w,in} \le T_{dp} \text{ and } T_{w,in} < 0^\circ\text{C} \\  \text{SAFE (DRY)}, & \text{if } T_{w,in} > T_{dp}  \end{cases}$$
-
-### 6. Tactical Fuel & Carbon Offset
-
-Savings relative to a baseline military canvas tent ($U = 3.2\text{ W/m}^2\cdot\text{K}$, $1.2\text{ ACH}$):
-
-$$\text{Diesel Saved (L/day)} = \frac{\int_{0}^{24\text{ h}} \max\left(0, \dot{Q}_{deficit,tent}(t) - \dot{Q}_{deficit,shelter}(t)\right) dt}{\text{LHV}_{diesel} \cdot \rho_{diesel} \cdot \eta_{heater}}$$
-
-$$\text{CO}_2 \text{ Offset (kg/day)} = \text{Diesel Saved (L)} \times 2.68\text{ kg CO}_2/\text{L}$$
+* **5-Node Transient Heat Solver:** Instead of relying on crude steady-state R-values, we discretize the wall assembly into 5 nodes (exterior face, structural shell, core insulation, PCM buffer, and interior wall). The engine solves these simultaneously using an implicit Crank-Nicolson formulation and the Thomas Algorithm (TDMA). This means it’s unconditionally stable—it won't blow up with `NaN` errors even if you crank the time step up or down.
+* **Phase Change Material (PCM) Buffer Modeling:** In the real world, PCMs don't just magically melt at a single sharp temperature. We modeled their apparent heat capacity ($C_{\text{app}}$) as a smooth Gaussian bell curve over their phase change range. This lets us see if a PCM layer will *actually* cycle and release latent heat, or if it's just going to sit there as dead weight during a sub-zero winter.
+* **Live Weather via Open-Meteo:** No need to guess solar radiation or wind speeds. Just hit "Fetch Live Weather" and the tool pings the Open-Meteo API for the exact coordinates of Ladakh, Siachen, Tawang, etc., pulling hourly ambient temps, solar irradiance, and wind speeds.
+* **Altitude-Adjusted Air Density:** Air density drops by nearly 40% at 5,000 meters. If you calculate ventilation heat loss using sea-level air density, your numbers will be garbage. The tool automatically corrects air properties using the standard barometric formula based on your chosen altitude.
+* **Fresh Air & Bukhari Safety Checks:** Sealing a shelter tight saves heat, but if soldiers are burning kerosene indoors, CO and CO₂ levels can become lethal fast. We wrote an air exchange check that calculates the exact minimum ACH (Air Changes per Hour) needed to keep the air safe based on occupant respiration and stove draft.
+* **ISO 7730 Comfort Index (PMV/PPD):** Just looking at air temperature doesn't tell you if a soldier is actually freezing. The model calculates Fanger's Predicted Mean Vote (PMV) by factoring in radiant exchange with cold interior walls, military winter clothing levels (2.5 clo), and metabolic rates.
+* **Pareto Optimizer:** Basically a screening tool that loops through combinations of Aerogel, PUF, VIP, and PCM thicknesses to rank designs. It finds the setups that give the highest comfort for the lowest material weight and fuel cost.
+* **Field Sensor Validation:** Got measured data from a physical prototype? You can drop a simple CSV (`hour,measuredIndoorTemp`) into the app to plot your real-world readings directly against our simulated curves and automatically calculate MAE and RMSE values.
+* **Built-in Assistant:** A floating AI copilot widget you can ask questions about your current setup. For instance, "Why isn't my PCM freezing?" or "Is this ACH safe for 4 troops?"
 
 ---
 
-## Project Structure
+## System Architecture (Yes, it's one file)
+
+We intentionally built the entire application as a single, self-contained HTML file (`index.html`) using vanilla JavaScript and HTML5 Canvas. 
+
+- **Zero Node.js / NPM dependencies**
+- **No build steps (no Webpack, Vite, etc.)**
+- **No bloated external UI frameworks**
+
+Why? Because forward-deployed field engineers, military officers, or hackathon evaluators shouldn't have to `npm install` just to run a thermal model. You can literally save the `.html` file to a flash drive, open it on an offline field laptop in the middle of nowhere, and it works flawlessly.
 
 ```text
 thermasetu/
-├── backend/
-│   ├── main.py              # FastAPI application & NumPy ODE thermal solver
-│   ├── requirements.txt     # Python dependencies
-│   └── test_solver.py       # Numerical verification unit tests
-├── frontend/
-│   └── index.html           # Standalone dashboard UI (HTML5, Canvas, CSS variables)
-├── data/
-│   ├── sample_climate.csv   # Field sample microclimate data (hour, temp, solar, wind, rh)
-│   └── sample_measured.csv  # Field sensor validation dataset (hour, measuredIndoorTemp)
-├── docs/
-│   └── DRDO_SIH26051_Spec.pdf
-└── README.md
-
-```
-
----
-
-## Getting Started
-
-### Prerequisites
-
-* Python 3.10 or higher
-* Modern web browser (Chrome, Edge, Firefox, Safari)
-
-### 1. Backend Setup (FastAPI Microservice)
-
-Clone the repository and enter the backend directory:
-
-```bash
-git clone https://github.com/your-username/thermasetu.git
-cd thermasetu/backend
-
-```
-
-Create and activate a virtual environment:
-
-```bash
-# Linux / macOS
-python3 -m venv venv
-source venv/bin/activate
-
-# Windows
-python -m venv venv
-venv\Scripts\activate
-
-```
-
-Install dependencies:
-
-```bash
-pip install -r requirements.txt
-
-```
-
-Start the simulation API server:
-
-```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-
-```
-
-The API interactive documentation will be accessible at `http://localhost:8000/docs`.
-
-### 2. Frontend Setup
-
-The dashboard is self-contained in `frontend/index.html`. You can open it directly in a web browser, or serve it via Python:
-
-```bash
-cd ../frontend
-python3 -m http.server 3000
-
-```
-
-Open `http://localhost:3000` in your browser.
-
-> **Offline Architecture:** The frontend automatically checks for the FastAPI backend at `http://localhost:8000/api/simulate`. If the backend is unreachable, it seamlessly switches to its built-in client-side JavaScript numerical engine.
-
----
-
-## API Reference
-
-### `POST /api/simulate`
-
-Computes the 24-hour dynamic heat balance, comfort compliance, and logistics metrics.
-
-#### Request Body (JSON)
-
-```json
-{
-  "altitude": 3500.0,
-  "latitude": 34.15,
-  "doy": 15,
-  "tmean": -12.0,
-  "tamp": 8.5,
-  "solar": 850.0,
-  "wind": 8.0,
-  "rh": 35.0,
-  "length": 6.0,
-  "width": 4.0,
-  "height": 2.6,
-  "win_area": 2.8,
-  "door_area": 1.8,
-  "win_u": 2.4,
-  "azimuth": 180.0,
-  "tilt": 15.0,
-  "occupants": 4,
-  "ach": 0.5,
-  "start_temp": 10.0,
-  "target_temp": 21.0,
-  "tolerance": 3.0,
-  "mode": "heat",
-  "setpoint": 18.5,
-  "equip_kw": 4.0,
-  "efficiency": 0.75,
-  "dt_minutes": 5.0,
-  "wall_layers": [
-    { "name": "Wood", "mm": 15.0, "k": 0.13, "rho": 550.0, "cp": 1600.0, "isPCM": false },
-    { "name": "PUF", "mm": 60.0, "k": 0.022, "rho": 42.0, "cp": 1400.0, "isPCM": false },
-    { "name": "PCM_RT21", "mm": 15.0, "k": 0.20, "rho": 880.0, "cp": 2000.0, "isPCM": true, "Lf": 190000.0, "Tm": 21.0, "sigma": 0.8 }
-  ],
-  "roof_layers": [
-    { "name": "Aerogel", "mm": 40.0, "k": 0.015, "rho": 110.0, "cp": 1000.0, "isPCM": false }
-  ],
-  "floor_layers": [
-    { "name": "PUF", "mm": 60.0, "k": 0.022, "rho": 42.0, "cp": 1400.0, "isPCM": false }
-  ]
-}
-
-```
-
-#### Response (JSON Summary)
-
-```json
-{
-  "u_avg": 0.312,
-  "rho_air": 0.824,
-  "comfort_compliance": 94.2,
-  "avg_temp": 20.4,
-  "min_temp": 18.6,
-  "max_temp": 22.8,
-  "diesel_saved_liters": 19.4,
-  "co2_offset_kg": 52.1,
-  "t_dew_point": 5.8,
-  "t_wall_inner": 16.4,
-  "is_frost_risk": false,
-  "total_mass": 2840.0,
-  "totals_kwh": {
-    "solar": 42.5,
-    "conduction": 21.2,
-    "ventilation": 8.4,
-    "radiation": 9.1,
-    "heat": 0.8
-  },
-  "records": [ ... ]
-}
-
-```
-
----
-
-## Verification & Validation
-
-| Verification Scheme | Method | Standard Applied |
-| --- | --- | --- |
-| **Numerical Convergence** | Timestep step-halving ($\Delta t = 20, 10, 5, 2.5, 1.25\text{ min}$) | Cauchy Criterion ($\Vert{}T_{\Delta t} - T_{\Delta t/2}\Vert{} < 0.1^\circ\text{C}$) |
-| **Field Sensor Agreement** | Pearson correlation and statistical error vs. uploaded CSV | $R^2 \ge 0.85$, $\text{MAE} \le 1.8^\circ\text{C}$, $\text{RMSE} \le 2.2^\circ\text{C}$ |
-| **Psychrometry & Condensation** | Magnus-Tetens boundary tracking | CEN EN ISO 13788 Glaser method equivalent |
-| **Material Physics** | Knudsen diffusion & apparent heat capacity | ASHRAE Fundamentals / EnergyPlus Algorithms |
-
----
-
-## Contributing
-
-1. Fork the repository.
-2. Create a feature branch (`git checkout -b feature/rk4-solver`).
-3. Commit changes (`git commit -m 'Add 4th-order Runge-Kutta numerical solver'`).
-4. Push to the branch (`git push origin feature/rk4-solver`).
-5. Open a Pull Request.
-
----
+├── index.html            # The whole app (UI, numerical solver, charts, assistant)
+├── ThermaSetu logo.png   # Shelter emblem displayed in the header
+└── README.md             # You are here
